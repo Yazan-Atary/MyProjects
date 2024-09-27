@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient - HealthSecure Inc.</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: white;
+            background-color: #4CAF50;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        nav a:hover {
+            background-color: #45a049;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        #about, #add-patient-box {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="number"], input[type="date"], button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: calc(100% - 22px);
+            padding: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #add-status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>HealthSecure Inc.</h1>
+    <nav>
+        <a href="index.html">Add Patient Information</a>
+        <a href="get_patient.html">Retrieve Patient Information</a>
+    </nav>
+</header>
+
+<div class="container">
+    <section id="about">
+        <h2>About Us</h2>
+        <p>HealthSecure Inc. is a leading healthcare organization with multiple hospitals, clinics, and research facilities spread across the country. Our mission is to provide top-notch healthcare services while ensuring the highest standards of data protection and privacy. We are committed to leveraging the latest in cloud technology to enhance patient care and streamline operations.</p>
+    </section>
+
+    <section id="add-patient-box">
+        <h2>Add Patient Information</h2>
+        <div class="form-group">
+            <label for="patient-name-add">Patient Name</label>
+            <input type="text" id="patient-name-add" placeholder="Enter Patient Name">
+        </div>
+        <div class="form-group">
+            <label for="patient-age">Patient Age</label>
+            <input type="number" id="patient-age" placeholder="Enter Patient Age">
+        </div>
+        <div class="form-group">
+            <label for="patient-diagnosis-date">Diagnosis Date</label>
+            <input type="date" id="patient-diagnosis-date" placeholder="Enter Diagnosis Date">
+        </div>
+        <div class="form-group">
+            <label for="patient-gender">Patient Gender</label>
+            <input type="text" id="patient-gender" placeholder="Enter Patient Gender">
+        </div>
+        <div class="form-group">
+            <label for="patient-medical-history">Medical History</label>
+            <input type="text" id="patient-medical-history" placeholder="Enter Medical History">
+        </div>
+        <button onclick="addPatientInfo()">Add Patient Information</button>
+        <div id="add-status"></div>
+    </section>
+</div>
+
+<script>
+    const apiUrl = 'https://9h9r77xy0e.execute-api.us-east-1.amazonaws.com/prod/patients';
+
+    async function addPatientInfo() {
+        const name = document.getElementById('patient-name-add').value;
+        const age = document.getElementById('patient-age').value;
+        const diagnosisDate = document.getElementById('patient-diagnosis-date').value;
+        const gender = document.getElementById('patient-gender').value;
+        const medicalHistory = document.getElementById('patient-medical-history').value;
+        const addResultDiv = document.getElementById('add-status');
+
+        if (!name || !age || !diagnosisDate || !gender || !medicalHistory) {
+            addResultDiv.innerHTML = 'Please fill in all fields.';
+            addResultDiv.style.color = 'red';
+            return;
+        }
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    age: age,
+                    diagnosis: diagnosisDate,
+                    gender: gender,
+                    medicalHistory: medicalHistory
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                addResultDiv.innerHTML = `<h2>Success</h2><p>${data.message}</p>`;
+                addResultDiv.style.color = '#4CAF50';
+            } else {
+                addResultDiv.innerHTML = `<h2>Error</h2><p>${data.error}</p>`;
+                addResultDiv.style.color = 'red';
+            }
+        } catch (error) {
+            addResultDiv.innerHTML = `<h2>Error</h2><p>${error.message}</p>`;
+            addResultDiv.style.color = 'red';
+        }
+    }
+</script>
+
+</body>
+</html>

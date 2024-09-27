@@ -1,0 +1,37 @@
+from diagrams import Diagram, Cluster
+from diagrams.aws.compute import Lambda
+from diagrams.aws.database import Dynamodb
+from diagrams.aws.network import APIGateway
+from diagrams.aws.storage import S3
+from diagrams.onprem.client import Users
+from diagrams.onprem.network import Internet
+from diagrams.onprem.compute import Server
+from diagrams.onprem.database import SQL
+from diagrams.onprem.network import Users as OnPremUsers
+from diagrams.onprem.network import Network
+
+# Before Cloud Migration
+with Diagram("HealthSecure Inc. - Before Cloud Migration", show=False):
+    users = OnPremUsers("End Users")
+    with Cluster("On-Premises Data Center"):
+        servers = Server("Physical Servers")
+        storage = SQL("Local Storage")
+        database = SQL("SQL Database")
+        app_servers = Server("Application Servers")
+        
+    users >> Network("Local Network") >> [servers, storage, database, app_servers]
+
+# After Cloud Migration
+with Diagram("HealthSecure Inc. - After Cloud Migration", show=False):
+    users = Users("End Users")
+    internet = Internet("Internet")
+    
+    with Cluster("AWS Cloud"):
+        api_gateway = APIGateway("API Gateway")
+        lambda_function = Lambda("Lambda Function")
+        dynamodb = Dynamodb("DynamoDB")
+        s3 = S3("S3 Bucket")
+        
+    users >> internet >> api_gateway >> lambda_function
+    lambda_function >> dynamodb
+    lambda_function >> s3

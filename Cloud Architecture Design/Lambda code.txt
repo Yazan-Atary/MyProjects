@@ -1,0 +1,94 @@
+import json
+import boto3
+from boto3.dynamodb.conditions import Attr
+ 
+# Create a DynamoDB resource
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Patients')
+ 
+def lambda_handler(event, context):
+    method = event['httpMethod']
+    if method == 'GET':
+        return search_patient(event)
+    elif method == 'POST':
+        return add_patient(event)
+    else:
+        return {
+            'statusCode': 405,
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
+ 
+def search_patient(event):
+    try:
+        name = event['queryStringParameters']['name']
+        response = table.scan(
+            FilterExpression=Attr('name').eq(name)
+        )
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'Items': response['Items']}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
+ 
+def add_patient(event):
+    try:
+        body = json.loads(event['body'])
+        name = body.get('name')
+        age = body.get('age')
+        diagnosis = body.get('diagnosis')
+        gender = body.get('gender')
+        medicalHistory = body.get('medicalHistory')
+ 
+        if not (name and age and diagnosis and gender and medicalHistory):
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'All fields are required'}),
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            }
+ 
+        item = {
+            'name': name,
+            'age': age,
+            'diagnosis': diagnosis,
+            'gender': gender,
+            'medicalHistory': medicalHistory
+        }
+ 
+        table.put_item(Item=item)
+ 
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Patient added successfully'}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }

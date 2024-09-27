@@ -1,0 +1,17 @@
+{
+  "name": {
+    "S": "www"
+  },
+  "age": {
+    "S": "66"
+  },
+  "diagnosis": {
+    "S": "flu"
+  },
+  "gender": {
+    "S": "Female"
+  },
+  "medicalHistory": {
+    "S": "5"
+  }
+}
